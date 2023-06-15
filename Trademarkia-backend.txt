@@ -1,0 +1,49 @@
+To create a backend,Set up a Python backend framework, such as Flask or Django, to handle the HTTP requests and responses.
+
+pip install pandas scikit-learn flask  
+
+Create a Python file for backend application example app.py for Flask.
+
+import pandas as pd
+from flask import Flask, request, jsonify  
+
+with open('idmanual.json') as file:
+    data = json.load(file)
+features = [item['description'] for item in data]
+labels = [item['status'] for item in data]
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+vectorizer = CountVectorizer() 
+X_train = vectorizer.fit_transform(X_train)
+model = SVC()
+model.fit(X_train, y_train)
+
+For Flask:
+app = Flask(__name__)
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json()
+    descriptions = data['descriptions']
+
+    # Preprocess the descriptions (if needed)
+    preprocessed_descriptions = preprocess(descriptions)
+
+    # Vectorize the preprocessed descriptions
+    X = vectorizer.transform(preprocessed_descriptions)
+
+    # Make predictions
+    predictions = model.predict(X)
+
+    # Return the predictions as a JSON response
+    return jsonify({'predictions': predictions.tolist()})
+
+if __name__ == '__main__':
+    app.run()
+
+python app.py
+
+
+Now send HTTP POST requests to the /predict endpoint with JSON data containing the "descriptions" field to get predictions in return.
+
+
+
